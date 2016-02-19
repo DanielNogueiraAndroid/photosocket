@@ -9,54 +9,60 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.daniel.testemaginadorfoto.MainActivity">
 
+
+    <SurfaceView
+        android:id="@+id/surfaceView1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.39" />
+
+
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:id="@+id/textView" />
+        android:text="Detectino" />
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="58dp"
-        android:weightSum="1">
+        android:orientation="vertical"
+        android:weightSum="2">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_weight="0.21">
+            android:orientation="vertical">
 
             <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="start"
                 android:id="@+id/btn_start"
-                android:layout_gravity="right" />
-
-            <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="stop"
-                android:id="@+id/btn_stop" />
+                android:layout_gravity="right"
+                android:text="start" />
 
             <Button
+                android:id="@+id/btn_stop"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Capture"
+                android:layout_gravity="right"
+                android:text="stop" />
+
+            <Button
                 android:id="@+id/capture"
-                android:layout_gravity="center_horizontal" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="Capture" />
         </LinearLayout>
 
-        <SurfaceView
-            android:layout_width="142dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/surfaceView1"
-            android:layout_gravity="center_horizontal"
-            android:layout_weight="0.39" />
+
     </LinearLayout>
+
+
 </RelativeLayout>
