@@ -109,12 +109,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         }
 
     private void send() {
-
+        Log.d(tag, "send ");
         if (!connected) {
 //        serverIpAddress = serverIp.getText().toString();
 //        if (!serverIpAddress.equals("")) {
             Thread cThread = new Thread(new ClientThread());
             cThread.start();
+            Log.d(tag, "start ");
             //    }
         }
 
@@ -181,7 +182,7 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         public void run() {
             try {
                 InetAddress serverAddr = InetAddress.getByName("192.168.1.10");
-                Log.d("ClientActivity", "C: Connecting...");
+                Log.d(tag, "C: Connecting...");
                 Socket socket = new Socket(serverAddr, 345);
                 connected = true;
 
@@ -205,26 +206,26 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                         byte[] imgbyte = getBytesFromBitmap(bitmap);
 
 
-                        Log.d("ClientActivity", "C: Sending command.");
+                        Log.d(tag, "C: Sending command.");
                     /*PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket
                                 .getOutputStream())), true);*/
                         // WHERE YOU ISSUE THE COMMANDS
 
                         OutputStream output = socket.getOutputStream();
-                        Log.d("ClientActivity", "C: image writing.");
+                        Log.d(tag, "C: image writing.");
 
                         output.write(imgbyte);
                         output.flush();
                         // out.println("Hey Server!");
-                        Log.d("ClientActivity", "C: Sent.");
+                        Log.d(tag, "C: Sent.");
                     } catch (Exception e) {
-                        Log.e("ClientActivity", "S: Error", e);
+                        Log.e(tag, "S: Error", e);
                     }
                 }
                 socket.close();
-                Log.d("ClientActivity", "C: Closed.");
+                Log.d(tag, "C: Closed.");
             } catch (Exception e) {
-                Log.e("ClientActivity", "C: Error", e);
+                Log.e(tag, "C: Error", e);
                 connected = false;
             }
         }
