@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,86 +28,86 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
 
     private final String tag = "VideoServer";
     //public class VideoServer extends Activity implements SurfaceHolder.Callback {
-        TextView testView;
-        Camera camera;
-        SurfaceView surfaceView;
-        SurfaceHolder surfaceHolder;
-        android.hardware.Camera.PictureCallback rawCallback;
-        android.hardware.Camera.ShutterCallback shutterCallback;
-        android.hardware.Camera.PictureCallback jpegCallback;
+    TextView testView;
+    Camera camera;
+    SurfaceView surfaceView;
+    SurfaceHolder surfaceHolder;
+    android.hardware.Camera.PictureCallback rawCallback;
+    android.hardware.Camera.ShutterCallback shutterCallback;
+    android.hardware.Camera.PictureCallback jpegCallback;
     boolean connected;
-        Button start, stop, capture;
+    Button start, stop, capture;
     private String lastname;
 
-        /** Called when the activity is first created. */
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
-            // para manter a tela ligada
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            start = (Button)findViewById(R.id.btn_start);
-            start.setOnClickListener(new Button.OnClickListener()
-            {
-                public void onClick(View arg0) {
-                    start_camera();
-                }
-            });
-            stop = (Button)findViewById(R.id.btn_stop);
-            capture = (Button) findViewById(R.id.capture);
-            stop.setOnClickListener(new Button.OnClickListener()
-            {
-                public void onClick(View arg0) {
-                    stop_camera();
-                }
-            });
-            capture.setOnClickListener(new View.OnClickListener() {
+    /**
+     * Called when the activity is first created.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        // para manter a tela ligada
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        start = (Button) findViewById(R.id.btn_start);
+        start.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View arg0) {
+                start_camera();
+            }
+        });
+        stop = (Button) findViewById(R.id.btn_stop);
+        capture = (Button) findViewById(R.id.capture);
+        stop.setOnClickListener(new Button.OnClickListener() {
+            public void onClick(View arg0) {
+                stop_camera();
+            }
+        });
+        capture.setOnClickListener(new View.OnClickListener() {
 
-                @Override
-                public void onClick(View v) {
-                    // TODO Auto-generated method stub
-                    captureImage();
-                }
-            });
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+                captureImage();
+            }
+        });
 
-            surfaceView = (SurfaceView)findViewById(R.id.surfaceView1);
-            surfaceHolder = surfaceView.getHolder();
-            surfaceHolder.addCallback(this);
-            surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-            rawCallback = new android.hardware.Camera.PictureCallback() {
-                public void onPictureTaken(byte[] data, Camera camera) {
-                    Log.d("Log", "onPictureTaken - raw");
-                }
-            };
+        surfaceView = (SurfaceView) findViewById(R.id.surfaceView1);
+        surfaceHolder = surfaceView.getHolder();
+        surfaceHolder.addCallback(this);
+        surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        rawCallback = new android.hardware.Camera.PictureCallback() {
+            public void onPictureTaken(byte[] data, Camera camera) {
+                Log.d("Log", "onPictureTaken - raw");
+            }
+        };
 
-            /** Handles data for jpeg picture */
-            shutterCallback = new android.hardware.Camera.ShutterCallback() {
-                public void onShutter() {
-                    Log.i("Log", "onShutter'd");
+        /** Handles data for jpeg picture */
+        shutterCallback = new android.hardware.Camera.ShutterCallback() {
+            public void onShutter() {
+                Log.i("Log", "onShutter'd");
+            }
+        };
+        jpegCallback = new android.hardware.Camera.PictureCallback() {
+            public void onPictureTaken(byte[] data, Camera camera) {
+                FileOutputStream outStream = null;
+                try {
+                    lastname = String.format(
+                            "/sdcard/%d.jpg", System.currentTimeMillis());
+                    outStream = new FileOutputStream(lastname);
+                    outStream.write(data);
+                    outStream.close();
+                    Log.d("Log", "onPictureTaken - wrote bytes: " + data.length);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    send();
                 }
-            };
-            jpegCallback = new android.hardware.Camera.PictureCallback() {
-                public void onPictureTaken(byte[] data, Camera camera) {
-                    FileOutputStream outStream = null;
-                    try {
-                        lastname = String.format(
-                                "/sdcard/%d.jpg", System.currentTimeMillis());
-                        outStream = new FileOutputStream(lastname);
-                        outStream.write(data);
-                        outStream.close();
-                        Log.d("Log", "onPictureTaken - wrote bytes: " + data.length);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        send();
-                    }
-                    Log.d("Log", "onPictureTaken - jpeg");
-                }
-            };
+                Log.d("Log", "onPictureTaken - jpeg");
+            }
+        };
 
-        }
+    }
 
     private void send() {
         Log.d(tag, "send ");
@@ -122,10 +123,10 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
     }
 
 
-        private void captureImage() {
-            // TODO Auto-generated method stub
-            camera.takePicture(shutterCallback, rawCallback, jpegCallback);
-        }
+    private void captureImage() {
+        // TODO Auto-generated method stub
+        camera.takePicture(shutterCallback, rawCallback, jpegCallback);
+    }
 
     //  http://stackoverflow.com/questions/16602736/android-send-an-image-through-socket-programming
 
@@ -135,59 +136,51 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
         return stream.toByteArray();
     }
 
-        private void start_camera()
-        {
-            try{
-                camera = Camera.open();
-            }catch(RuntimeException e){
-                Log.e(tag, "init_camera: " + e);
-                return;
-            }
-            Camera.Parameters param;
-            param = camera.getParameters();
-            //modify parameter
-            param.setPreviewFrameRate(20);
-            param.setPreviewSize(176, 144);
-            camera.setParameters(param);
-            try {
-                camera.setPreviewDisplay(surfaceHolder);
-                camera.startPreview();
-                //camera.takePicture(shutter, raw, jpeg)
-            } catch (Exception e) {
-                Log.e(tag, "init_camera: " + e);
-                return;
-            }
+    private void start_camera() {
+        try {
+            camera = Camera.open();
+        } catch (RuntimeException e) {
+            Log.e(tag, "init_camera: " + e);
+            return;
+        }
+        Camera.Parameters param;
+        param = camera.getParameters();
+        //modify parameter
+        param.setPreviewFrameRate(20);
+        param.setPreviewSize(176, 144);
+        camera.setParameters(param);
+        try {
+            camera.setPreviewDisplay(surfaceHolder);
+            camera.startPreview();
+            //camera.takePicture(shutter, raw, jpeg)
+        } catch (Exception e) {
+            Log.e(tag, "init_camera: " + e);
+            return;
         }
 
-        private void stop_camera()
-        {
-            camera.stopPreview();
-            camera.release();
-        }
+
+    }
+
+    private void stop_camera() {
+        camera.stopPreview();
+        camera.release();
+    }
 
     public void surfaceChanged(SurfaceHolder arg0, int arg1, int arg2, int arg3) {
         // TODO Auto-generated method stub
-        }
+    }
 
     public void surfaceCreated(SurfaceHolder holder) {
-            // TODO Auto-generated method stub
-        }
+        // TODO Auto-generated method stub
+    }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
-            // TODO Auto-generated method stub
-        }
+        // TODO Auto-generated method stub
+    }
 
-    public class ClientThread implements Runnable {
-        //      boolean connected ;
-        public void run() {
-            try {
-                InetAddress serverAddr = InetAddress.getByName("192.168.1.10");
-                Log.d(tag, "C: Connecting...");
-                Socket socket = new Socket(serverAddr, 345);
-                connected = true;
+    private void sendLastImage(OutputStream outputStream) {
 
-                while (connected) {
-                    try {
+        try {
 
 
                     /*File myFile = new File (filepath);
@@ -200,37 +193,62 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback {
                     //System.out.println("Sending...");
                     os.write(mybytearray,0,mybytearray.length);
                     os.flush();*/
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                        Bitmap bitmap = BitmapFactory.decodeFile(lastname, options);
-                        byte[] imgbyte = getBytesFromBitmap(bitmap);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap bitmap = BitmapFactory.decodeFile(lastname, options);
+            byte[] imgbyte = getBytesFromBitmap(bitmap);
 
 
-                        Log.d(tag, "C: Sending command.");
+            Log.d(tag, "C: Sending command.");
                     /*PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket
                                 .getOutputStream())), true);*/
-                        // WHERE YOU ISSUE THE COMMANDS
+            // WHERE YOU ISSUE THE COMMANDS
 
-                        OutputStream output = socket.getOutputStream();
-                        Log.d(tag, "C: image writing.");
+            Log.d(tag, "C: image writing.");
 
-                        output.write(imgbyte);
-                        output.flush();
-                        // out.println("Hey Server!");
-                        Log.d(tag, "C: Sent.");
-                    } catch (Exception e) {
-                        Log.e(tag, "S: Error", e);
-                    }
+            outputStream.write(imgbyte);
+            outputStream.flush();
+            // out.println("Hey Server!");
+            Log.d(tag, "C: Sent.");
+        } catch (Exception e) {
+            Log.e(tag, "S: Error", e);
+        }
+
+
+    }
+
+    public class ClientThread implements Runnable {
+        //      boolean connected ;
+        public void run() {
+            try {
+                InetAddress serverAddr = InetAddress.getByName("192.168.1.104");
+                Log.d(tag, "C: Connecting...");
+                Socket socket = new Socket(serverAddr, 7777);
+                connected = true;
+
+                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+
+                while (connected) {
+//                    DataInputStream in = new DataInputStream(socket.getInputStream());
+//                    int i = in.readInt();
+//                    if (i == 1) {
+//                        captureImage();
+//                        Log.d(tag, "i == 1.");
+//                    } else {
+                    sendLastImage(socket.getOutputStream());
+                    socket.close();
+                    //           }
                 }
                 socket.close();
                 Log.d(tag, "C: Closed.");
             } catch (Exception e) {
                 Log.e(tag, "C: Error", e);
                 connected = false;
+
             }
         }
     }
 
-    }
+}
 
 
